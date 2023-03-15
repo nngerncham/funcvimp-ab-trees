@@ -1,4 +1,3 @@
-#[derive(Default)]
 pub struct ImpDictNode<K, V>
 where
     K: Copy + Clone + Ord,
@@ -47,11 +46,6 @@ where
             }
         }
     }
-
-    fn search_node(root: &ImpDictNode<K, V>, key: &K) -> Box<ImpDictNode<K, V>> {
-        // TODO: fix me
-        Box::new(ImpDictNode::new(5))
-    }
 }
 
 pub struct ImpDict<K, V>
@@ -79,14 +73,25 @@ where
         }
     }
 
+    fn search_node(root: &ImpDictNode<K, V>, key: &K) -> Box<ImpDictNode<K, V>> {
+        Box::new(ImpDictNode::new(0))
+    }
+
+    fn grow(&mut self, key: &K, node: &mut ImpDictNode<K, V>) {
+        // TODO: implement me
+    }
+
     fn insert(&mut self, key: K, value: V) {
         match &self.root {
             None => {
                 self.root = Some(ImpDictNode::with_kv(self.b, key, value));
             }
             Some(root) => {
-                let mut target_node = *ImpDictNode::search_node(root, &key);
+                let mut target_node = *ImpDict::search_node(root, &key);
                 ImpDictNode::insert_node(&mut target_node, key, value);
+                if root.keys.len() >= self.b {
+                    self.grow(&key, &mut target_node);
+                }
             }
         }
 
