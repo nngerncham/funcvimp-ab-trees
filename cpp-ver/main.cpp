@@ -1,4 +1,5 @@
 #include "ImpBTree.cpp"
+#include "FunBTree.cpp"
 #include <iostream>
 #include <iterator>
 #include <map>
@@ -35,7 +36,7 @@ void print_str_vector(std::vector<std::string> vec) {
 
 
 int main(int argc, char *argv[]) {
-	ImpDict *imp_dict = new ImpDict(2, 3);
+	ImpDict *imp_dict = new ImpDict(3);
 	imp_dict->insert(5, "five");
 	imp_dict->insert(2, "two");
 	imp_dict->insert(3, "three");
@@ -44,8 +45,16 @@ int main(int argc, char *argv[]) {
 	imp_dict->insert(13, "thirteen");
 	imp_dict->insert(12, "twelve");
 	imp_dict->insert(11, "eleven");
-	ImpDict::print_tree(imp_dict->root.value());
-	print_int_vector(imp_dict->root.value()->keys);
+
+	FunDict *fun_dict = new FunDict(3);
+	fun_dict->insert(5, "five");
+	fun_dict->insert(2, "two");
+	fun_dict->insert(3, "three");
+	fun_dict->insert(1, "one");
+	fun_dict->insert(15, "fifteen");
+	fun_dict->insert(13, "thirteen");
+	fun_dict->insert(12, "twelve");
+	fun_dict->insert(11, "eleven");
 
     return 0;
 }

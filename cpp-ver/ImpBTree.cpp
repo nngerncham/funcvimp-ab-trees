@@ -105,15 +105,13 @@ class ImpDictNode {
 };
 
 class ImpDict {
-	int a;
 	int b;
 
 	public:
 		std::optional<ImpDictNode *> root;
 		int size;
 
-	ImpDict(int a, int b) {
-		this->a = a;
+	ImpDict(int b) {
 		this->b = b;
 
 		this->root = std::optional<ImpDictNode *>(std::nullopt);
