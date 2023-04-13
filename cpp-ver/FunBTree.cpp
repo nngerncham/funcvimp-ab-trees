@@ -21,24 +21,31 @@ class FunDictNode {
 		this->values = std::vector<V>{ value };
 	}
 
-	FunDictNode(std::vector<K> _keys, std::vector<V> _values) {
+	FunDictNode(std::vector<K> _keys, std::vector<V> _values, std::vector<FunDictNode *> _children) {
 		this->keys = _keys;
 		this->values = _values;
+		this->children = _children;
 	}
 
 	/**
 	  Clones the node `from` and replaces the child with a new child.
+	  Used when replacing a node a long the path.
 	  */
 	FunDictNode(FunDictNode *child, int c_idx, FunDictNode *from) {
 		this->keys = std::vector<K>(from->keys);
 		this->values = std::vector<V>(from->values);
-
 		this->children = std::vector<FunDictNode *>(from->children);
-		this->children[c_idx] = child;
+
+		if (!this->is_leaf()) {
+			this->children[c_idx] = child;
+		} else {
+			this->children.push_back(child);
+		}
 	}
 
 	/**
 	  Clones the node `from` and replaces the child with a new child.
+	  Used when propagating an overflowing node up to parent.
 	  */
 	FunDictNode(K k, V v, FunDictNode *left, FunDictNode *right, FunDictNode *from) {
 		int insert_idx = from->find_insert_idx(k);
@@ -50,8 +57,25 @@ class FunDictNode {
 		this->values.insert(this->values.begin() + insert_idx, v);
 
 		this->children = std::vector<FunDictNode *>(from->children);
-		this->children[insert_idx] = right;
-		this->children.insert(this->children.begin() + insert_idx, left);
+		if (!this->is_leaf()) {
+			this->children[insert_idx] = right;
+			this->children.insert(this->children.begin() + insert_idx, left);
+		} else {
+			this->children.push_back(left);
+			this->children.push_back(right);
+		}
+	}
+
+	/**
+	  Clones the node `from` and replaces the child with a new child.
+	  Used when propagating an overflowing node up to parent.
+	  */
+	FunDictNode(K k, V v, FunDictNode *left, FunDictNode *right) {
+		this->keys = std::vector<K>{ k };
+		this->values = std::vector<V>{ v };
+
+		this->children.push_back(left);
+		this->children.push_back(right);
 	}
 
 	/**
@@ -111,12 +135,16 @@ class FunDictNode {
 		V v = this->values[n_keys / 2];
 
 		int n_child = this->children.size();
-		std::vector<FunDictNode *> head_children = std::vector<FunDictNode *>(this->children.begin(), this->children.begin() + n_child / 2);
-		std::vector<FunDictNode *> tail_children = std::vector<FunDictNode *>(this->children.begin() + n_child / 2, this->children.end());
+		std::vector<FunDictNode *> head_children;
+		std::vector<FunDictNode *> tail_children;
+		if (n_child > 0) {
+			head_children = std::vector<FunDictNode *>(this->children.begin(), this->children.begin() + n_child / 2);
+			tail_children = std::vector<FunDictNode *>(this->children.begin() + n_child / 2, this->children.end());
+		}
 
-		return std::make_tuple(new FunDictNode(head_keys, head_values),
+		return std::make_tuple(new FunDictNode(head_keys, head_values, head_children),
 							   k, v,
-							   new FunDictNode(tail_keys, tail_values));
+							   new FunDictNode(tail_keys, tail_values, tail_children));
 	}
 
 	bool is_overflowing(int b) {
@@ -155,7 +183,13 @@ class FunDict {
 	  */
 	void insert(K key, V value) {
 		if (this->root.has_value()) {
-			this->root = insert_helper(this->root.value(), key, value);
+			FunDictNode *new_root = insert_helper(this->root.value(), key, value);
+			if (!new_root->is_overflowing(this->b)) {
+				this->root = new_root;
+			} else {
+				auto [left, k, v, right] = new_root->split();
+				this->root = new FunDictNode(k, v, left, right);
+			}
 		} else {
 			this->root = new FunDictNode(key, value);
 		}
@@ -168,7 +202,6 @@ class FunDict {
 
 		int insert_idx = node->find_insert_idx(key);
 		FunDictNode *new_child = insert_helper(node->children[insert_idx], key, value);
-
 		if (!new_child->is_overflowing(this->b)) {
 			return new FunDictNode(new_child, insert_idx, node);
 		}

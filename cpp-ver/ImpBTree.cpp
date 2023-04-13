@@ -32,12 +32,6 @@ class ImpDictNode {
 		this->children.reserve(b);
 	}
 
-	~ImpDictNode() {
-		keys.clear();
-		values.clear();
-		children.clear();
-	}
-
 	/**
 	  Finds the right index to insert a key into node.
 	  If key already exists, returns its index.
@@ -182,7 +176,6 @@ class ImpDict {
 		ImpDictNode *left = new ImpDictNode(this->b, head_keys, head_values, head_children);
 		ImpDictNode *right = new ImpDictNode(this->b, tail_keys, tail_values, tail_children);
 
-		delete node;
 		return std::make_tuple(left, mid_key, mid_value, right);
 	}
 

@@ -36,15 +36,15 @@ void print_str_vector(std::vector<std::string> vec) {
 
 
 int main(int argc, char *argv[]) {
-	ImpDict *imp_dict = new ImpDict(3);
-	imp_dict->insert(5, "five");
-	imp_dict->insert(2, "two");
-	imp_dict->insert(3, "three");
-	imp_dict->insert(1, "one");
-	imp_dict->insert(15, "fifteen");
-	imp_dict->insert(13, "thirteen");
-	imp_dict->insert(12, "twelve");
-	imp_dict->insert(11, "eleven");
+	//ImpDict *imp_dict = new ImpDict(3);
+	//imp_dict->insert(5, "five");
+	//imp_dict->insert(2, "two");
+	//imp_dict->insert(3, "three");
+	//imp_dict->insert(1, "one");
+	//imp_dict->insert(15, "fifteen");
+	//imp_dict->insert(13, "thirteen");
+	//imp_dict->insert(12, "twelve");
+	//imp_dict->insert(11, "eleven");
 
 	FunDict *fun_dict = new FunDict(3);
 	fun_dict->insert(5, "five");
