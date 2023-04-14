@@ -1,5 +1,7 @@
 #include "ImpBTree.cpp"
 #include "FunBTree.cpp"
+#include "FunSeqTree.cpp"
+#include "ImpSeqTree.cpp"
 #include <iostream>
 #include <iterator>
 #include <map>
@@ -11,23 +13,8 @@
 
 //#define N 16
 //#define N (1 << 20)
-# define N 128
 
 using ullong = unsigned long long;
-
-//void print_int_vector(std::vector<int> vec) {
-	//for (int e: vec) {
-		//std::cout << std::to_string(e) << ", ";
-	//}
-	//std::cout << std::endl;
-//}
-
-//void print_str_vector(std::vector<std::string> vec) {
-	//for (std::string e: vec) {
-		//std::cout << e << ", ";
-	//}
-	//std::cout << std::endl;
-//}
 
 std::vector<int> generate_keys(int n) {
 	std::vector<int> acc = std::vector<int>(n);
@@ -71,13 +58,14 @@ void prelim_test() {
 	fun_dict->insert(11, "eleven");
 }
 
-void print_result(int i, std::string type, std::string impl, ullong begin, ullong end) {
-    std::cout << i << "," << type << "," << impl << "," << end - begin << std::endl;
+void print_result(int i, int b, std::string type, std::string impl, ullong begin, ullong end) {
+    std::cout << i << "," << b << "," << type << "," << impl << "," << end - begin << std::endl;
 }
 
 int main(int argc, char *argv[]) {
-	int ns[5] = { 128, 4096, 65536, 262144, 524288 };
-	int bs[5] = { 2, 3, 8, 16, 100 };
+	int ns[] = { 65536 };
+	//int ns[] = { 128, 4096, 65536 };
+	int bs[] = { 2, 3, 5, 6, 8, 16, 100, 128, 256 };
 
 	/**
 	  I indicates which i-th element is being inserted.
@@ -85,7 +73,7 @@ int main(int argc, char *argv[]) {
 	  Implementation in {imp,fun}
 	  Latency indicates how many cycles it took since first calling insert.
 	  */
-	std::cout << "i,type,implementation,latency" << std::endl;
+	std::cout << "i,b,type,implementation,latency" << std::endl;
 
 	for (int n: ns) {
 		std::vector<int> test_keys = generate_keys(n);
@@ -98,7 +86,7 @@ int main(int argc, char *argv[]) {
 				fd->insert(test_keys[i], test_values[i]);
 				ullong end = __rdtsc();
 
-				print_result(i, "dict", "fun", begin, end);
+				print_result(i, b, "dict", "fun", begin, end);
 			}
 
 			ImpDict *id = new ImpDict(b);
@@ -107,7 +95,31 @@ int main(int argc, char *argv[]) {
 				fd->insert(test_keys[i], test_values[i]);
 				ullong end = __rdtsc();
 
-				print_result(i, "dict", "imp", begin, end);
+				print_result(i, b, "dict", "imp", begin, end);
+			}
+		}
+	}
+
+	for (int n: ns) {
+		std::vector<int> test_keys = generate_keys(n);
+
+		for (int b: bs) {
+			FunSeq *fd = new FunSeq(b);
+			for (int i = 0; i < n; i++) {
+				ullong begin = __rdtsc();
+				fd->insert(test_keys[i]);
+				ullong end = __rdtsc();
+
+				print_result(i, b, "seq", "fun", begin, end);
+			}
+
+			ImpSeq *id = new ImpSeq(b);
+			for (int i = 0; i < n; i++) {
+				ullong begin = __rdtsc();
+				fd->insert(test_keys[i]);
+				ullong end = __rdtsc();
+
+				print_result(i, b, "seq", "imp", begin, end);
 			}
 		}
 	}
